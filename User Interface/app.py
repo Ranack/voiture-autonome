@@ -69,6 +69,9 @@ st.title("Application de Prédiction d'Images")
 # Récupérer la liste des images disponibles
 image_list = get_image_list()
 
+# Afficher le nombre total d'images disponibles
+st.sidebar.write(f"Nombre total d'images disponibles : {len(image_list)}")
+
 # Afficher la liste des images disponibles
 st.sidebar.header("Liste des Images Disponibles")
 selected_image = st.sidebar.selectbox("Choisissez une image", image_list)
@@ -79,20 +82,24 @@ if selected_image:
     if image:
         st.image(image, caption='Image sélectionnée', use_column_width=True)
 
-        # Bouton pour afficher le masque
-        if st.button("Afficher le masque"):
-            mask_name = get_mask_name(selected_image)
-            st.write(f"Nom du masque recherché : {mask_name}")  # Affiche le nom du masque recherché
-            mask = display_mask(mask_name)
-            if mask:
-                st.image(mask, caption='Masque correspondant', use_column_width=True)
-            else:
-                st.write("Masque non disponible pour cette image.")
+        # Utiliser des onglets pour afficher le masque et la prédiction
+        tab_mask, tab_prediction = st.tabs(["Masque", "Prédiction"])
 
-        # Effectuer une prédiction
-        if st.button("Effectuer une prédiction"):
-            prediction_image = make_prediction(image)
-            if prediction_image:
-                # Redimensionner la prédiction pour qu'elle soit de la même taille que l'image de base
-                prediction_image = prediction_image.resize(image.size)
-                st.image(prediction_image, caption='Prédiction', use_column_width=True)
+        with tab_mask:
+            # Bouton pour afficher le masque
+            if st.button("Afficher le masque", key="mask_button"):
+                mask_name = get_mask_name(selected_image)
+                mask = display_mask(mask_name)
+                if mask:
+                    st.image(mask, caption='Masque correspondant', use_column_width=True)
+                else:
+                    st.write("Masque non disponible pour cette image.")
+
+        with tab_prediction:
+            # Effectuer une prédiction
+            if st.button("Effectuer une prédiction", key="prediction_button"):
+                prediction_image = make_prediction(image)
+                if prediction_image:
+                    # Redimensionner la prédiction pour qu'elle soit de la même taille que l'image de base
+                    prediction_image = prediction_image.resize(image.size)
+                    st.image(prediction_image, caption='Prédiction', use_column_width=True)
