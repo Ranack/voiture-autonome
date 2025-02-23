@@ -7,14 +7,14 @@ on:
     paths:
       - "API/main.py"
       - ".github/workflows/*.yml"
-      - "Model/efficientnet_fpn_model_best_iou_diceloss.keras"  # Ajoute ce chemin pour déclencher le workflow si le modèle change
+      - "Model/efficientnet_fpn_model_best_iou_diceloss.keras"
   pull_request:
     branches:
       - "main"
     paths:
       - "API/main.py"
       - ".github/workflows/*.yml"
-      - "Model/efficientnet_fpn_model_best_iou_diceloss.keras"  # Ajoute ce chemin pour déclencher le workflow si le modèle change
+      - "Model/efficientnet_fpn_model_best_iou_diceloss.keras"
 
 permissions:
   contents: read
@@ -39,6 +39,13 @@ jobs:
         if [ -f API/requirements.txt ]; then pip install --no-cache-dir -r API/requirements.txt; fi
         echo "🔍 Vérification des packages installés :"
         pip list
+
+    - name: Verify file existence
+      run: |
+        if [ ! -f "Model/efficientnet_fpn_model_best_iou_diceloss.keras" ]; then
+          echo "Modèle introuvable : Model/efficientnet_fpn_model_best_iou_diceloss.keras"
+          exit 1
+        fi
 
     - name: Ensure API package is recognized
       run: |
