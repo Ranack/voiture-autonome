@@ -3,6 +3,7 @@ import subprocess
 import sys
 import logging
 from io import BytesIO
+from collections import namedtuple
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)
@@ -50,16 +51,90 @@ except Exception as e:
     logger.error(f"Erreur lors du chargement du modèle : {e}")
     raise ValueError("Impossible de charger le modèle.")
 
+# Définition de la structure Label
+Label = namedtuple('Label', [
+    'name', 'id', 'trainId', 'category', 'categoryId', 'hasInstances', 'ignoreInEval', 'color'
+])
+
+# Liste complète des labels
+labels = [
+    Label('unlabeled', 0, 255, 'void', 0, False, True, (0, 0, 0)),
+    Label('ego vehicle', 1, 255, 'void', 0, False, True, (0, 0, 0)),
+    Label('rectification border', 2, 255, 'void', 0, False, True, (0, 0, 0)),
+    Label('out of roi', 3, 255, 'void', 0, False, True, (0, 0, 0)),
+    Label('static', 4, 255, 'void', 0, False, True, (0, 0, 0)),
+    Label('dynamic', 5, 255, 'void', 0, False, True, (111, 74, 0)),
+    Label('ground', 6, 255, 'void', 0, False, True, (81, 0, 81)),
+    Label('road', 7, 0, 'flat', 1, False, False, (128, 64, 128)),
+    Label('sidewalk', 8, 1, 'flat', 1, False, False, (244, 35, 232)),
+    Label('parking', 9, 255, 'flat', 1, False, True, (250, 170, 160)),
+    Label('rail track', 10, 255, 'flat', 1, False, True, (230, 150, 140)),
+    Label('building', 11, 2, 'construction', 2, False, False, (70, 70, 70)),
+    Label('wall', 12, 3, 'construction', 2, False, False, (102, 102, 156)),
+    Label('fence', 13, 4, 'construction', 2, False, False, (190, 153, 153)),
+    Label('guard rail', 14, 255, 'construction', 2, False, True, (180, 165, 180)),
+    Label('bridge', 15, 255, 'construction', 2, False, True, (150, 100, 100)),
+    Label('tunnel', 16, 255, 'construction', 2, False, True, (150, 120, 90)),
+    Label('pole', 17, 5, 'object', 3, False, False, (153, 153, 153)),
+    Label('polegroup', 18, 255, 'object', 3, False, True, (153, 153, 153)),
+    Label('traffic light', 19, 6, 'object', 3, False, False, (250, 170, 30)),
+    Label('traffic sign', 20, 7, 'object', 3, False, False, (220, 220, 0)),
+    Label('vegetation', 21, 8, 'nature', 4, False, False, (107, 142, 35)),
+    Label('terrain', 22, 9, 'nature', 4, False, False, (152, 251, 152)),
+    Label('sky', 23, 10, 'sky', 5, False, False, (70, 130, 180)),
+    Label('person', 24, 11, 'human', 6, True, False, (220, 20, 60)),
+    Label('rider', 25, 12, 'human', 6, True, False, (255, 0, 0)),
+    Label('car', 26, 13, 'vehicle', 7, True, False, (0, 0, 142)),
+    Label('truck', 27, 14, 'vehicle', 7, True, False, (0, 0, 70)),
+    Label('bus', 28, 15, 'vehicle', 7, True, False, (0, 60, 100)),
+    Label('caravan', 29, 255, 'vehicle', 7, True, True, (0, 0, 90)),
+    Label('trailer', 30, 255, 'vehicle', 7, True, True, (0, 0, 110)),
+    Label('train', 31, 16, 'vehicle', 7, True, False, (0, 80, 100)),
+    Label('motorcycle', 32, 17, 'vehicle', 7, True, False, (0, 0, 230)),
+    Label('bicycle', 33, 18, 'vehicle', 7, True, False, (119, 11, 32)),
+    Label('license plate', -1, -1, 'vehicle', 7, False, True, (0, 0, 142)),
+]
+
+# Dictionnaire pour regrouper les catId à des noms de catégories simplifiées
+category_mapping = {
+    0: 'void',
+    1: 'flat',
+    2: 'construction',
+    3: 'object',
+    4: 'nature',
+    5: 'sky',
+    6: 'human',
+    7: 'vehicle',
+}
+
+# Fonction pour mapper les catId aux catégories simplifiées
+def map_category(label):
+    new_category = category_mapping.get(label.categoryId, 'unknown')
+    return Label(
+        name=label.name,
+        id=label.id,
+        trainId=label.trainId,
+        category=new_category,
+        categoryId=label.categoryId,
+        hasInstances=label.hasInstances,
+        ignoreInEval=label.ignoreInEval,
+        color=label.color
+    )
+
+# Application de la fonction avec une compréhension de liste
+grouped_labels = [map_category(label) for label in labels]
+
 # Palette de couleurs pour la visualisation (exemple pour 8 classes)
 color_palette = np.array([
-    [0, 0, 0],       # Fond (noir)
-    [255, 0, 0],     # Classe 1 (rouge)
-    [0, 255, 0],     # Classe 2 (vert)
-    [0, 0, 255],     # Classe 3 (bleu)
-    [255, 255, 0],   # Classe 4 (jaune)
-    [0, 255, 255],   # Classe 5 (cyan)
-    [255, 0, 255],   # Classe 6 (magenta)
-    [255, 255, 255]  # Classe 7 (blanc)
+    [0, 0, 0],         # Fond (noir)
+    [230, 25, 75],     # Classe 1 (rouge foncé)
+    [60, 180, 75],     # Classe 2 (vert)
+    [255, 225, 25],    # Classe 3 (jaune clair)
+    [0, 130, 200],      # Classe 4 (bleu)
+    [245, 130, 48],     # Classe 5 (orange)
+    [145, 30, 180],     # Classe 6 (violet)
+    [240, 240, 240],    # Classe 7 (gris clair)
+    [70, 240, 240],     # Classe 8 (cyan clair)
 ], dtype=np.uint8)
 
 # Fonction pour récupérer la liste des images disponibles
@@ -138,7 +213,31 @@ async def get_mask(mask_id: str):
     mask_path = os.path.join(dirs["masks"], mask_id)
     if not os.path.exists(mask_path):
         raise HTTPException(status_code=404, detail="Masque non trouvé")
-    return FileResponse(mask_path)
+
+    # Charger le masque
+    mask = Image.open(mask_path)
+
+    # Convertir le masque en tableau numpy
+    mask_array = np.array(mask)
+
+    # Vérifier que toutes les valeurs du masque sont dans la plage attendue
+    if np.any((mask_array < 0) | (mask_array >= len(labels))):
+        logger.error(f"Le masque contient des valeurs non valides : {np.unique(mask_array)}")
+        raise HTTPException(status_code=400, detail="Le masque contient des valeurs non valides")
+
+    # Mapper les valeurs du masque aux nouvelles catégories
+    mapped_mask_array = np.array([label.categoryId for label in labels])[mask_array]
+
+    # Convertir le masque en image colorée en utilisant la palette de couleurs
+    mask_image = color_palette[mapped_mask_array]
+    mask_image = Image.fromarray(mask_image.astype(np.uint8))
+
+    # Sauvegarder l'image du masque dans un buffer
+    buffer = BytesIO()
+    mask_image.save(buffer, format="PNG")
+    buffer.seek(0)
+
+    return StreamingResponse(buffer, media_type="image/png")
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
