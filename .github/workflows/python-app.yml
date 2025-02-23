@@ -41,9 +41,14 @@ jobs:
       run: |
         touch API/__init__.py
 
-    - name: Install httpx and Pillow explicitly
+    - name: Install httpx, Pillow and numpy explicitly
       run: |
-        pip install httpx Pillow
+        pip install httpx Pillow numpy
+
+    - name: Set PYTHONPATH to the API folder
+      run: |
+        echo "Setting PYTHONPATH"
+        export PYTHONPATH=$PYTHONPATH:/home/runner/work/voiture-autonome/voiture-autonome/API
 
     - name: Test with pytest
       run: |
