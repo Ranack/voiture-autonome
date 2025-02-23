@@ -35,7 +35,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest fastapi httpx Pillow numpy==1.23.5 scipy==1.10.1 tensorflow segmentation-models python-multipart
+        pip install flake8 pytest fastapi httpx Pillow numpy==1.23.5 scipy==1.10.1 tensorflow segmentation-models
         if [ -f API/requirements.txt ]; then pip install --no-cache-dir -r API/requirements.txt; fi
         echo "🔍 Vérification des packages installés :"
         pip list
@@ -51,6 +51,13 @@ jobs:
       run: |
         touch API/__init__.py
 
+    - name: Set PYTHONPATH
+      run: |
+        echo "Setting PYTHONPATH"
+        export PYTHONPATH=$PYTHONPATH:/home/runner/work/voiture-autonome/voiture-autonome/API
+
     - name: Test with pytest
       run: |
         python -m pytest API/testapi.py
+      env:
+        PYTHONPATH: /home/runner/work/voiture-autonome/voiture-autonome/API
