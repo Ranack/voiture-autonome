@@ -6,11 +6,13 @@ on:
       - "main"
     paths:
       - "API/main.py"
+      - ".github/workflows/*.yml"  # Déclenchement lors de la modification des workflows
   pull_request:
     branches:
       - "main"
     paths:
       - "API/main.py"
+      - ".github/workflows/*.yml"  # Déclenchement lors de la modification des workflows
 
 permissions:
   contents: read
