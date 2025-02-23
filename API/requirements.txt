@@ -3,3 +3,4 @@ pytest
 flake8
 httpx
 Pillow==9.5.0
+python-multipart
