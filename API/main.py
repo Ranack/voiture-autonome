@@ -4,6 +4,10 @@ import sys
 import logging
 from io import BytesIO
 from collections import namedtuple
+from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
+from PIL import Image
+import numpy as np
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)
@@ -25,27 +29,22 @@ except ImportError:
     os.environ["SM_FRAMEWORK"] = "tf.keras"
     import segmentation_models as sm
 
-from fastapi import FastAPI, HTTPException, UploadFile, File
-from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
-from PIL import Image
-import numpy as np
-
 app = FastAPI()
 
 # Définition des chemins
-dirs = {
+DIRS = {
     "images": "../Images/Photos",
     "masks": "../Images/Mask",
     "model": "../Model/efficientnet_fpn_model_best_iou_diceloss.keras"
 }
 
 # Vérifier si le modèle existe
-if not os.path.exists(dirs["model"]):
-    raise ValueError(f"Modèle introuvable : {dirs['model']}")
+if not os.path.exists(DIRS["model"]):
+    raise ValueError(f"Modèle introuvable : {DIRS['model']}")
 
 # Chargement du modèle avec gestion d'erreur
 try:
-    model = tf.keras.models.load_model(dirs["model"], compile=False)
+    model = tf.keras.models.load_model(DIRS["model"], compile=False)
     logger.info("Modèle chargé avec succès.")
 except Exception as e:
     logger.error(f"Erreur lors du chargement du modèle : {e}")
@@ -57,7 +56,7 @@ Label = namedtuple('Label', [
 ])
 
 # Liste complète des labels
-labels = [
+LABELS = [
     Label('unlabeled', 0, 255, 'void', 0, False, True, (0, 0, 0)),
     Label('ego vehicle', 1, 255, 'void', 0, False, True, (0, 0, 0)),
     Label('rectification border', 2, 255, 'void', 0, False, True, (0, 0, 0)),
@@ -96,7 +95,7 @@ labels = [
 ]
 
 # Dictionnaire pour regrouper les catId à des noms de catégories simplifiées
-category_mapping = {
+CATEGORY_MAPPING = {
     0: 'void',
     1: 'flat',
     2: 'construction',
@@ -109,7 +108,7 @@ category_mapping = {
 
 # Fonction pour mapper les catId aux catégories simplifiées
 def map_category(label):
-    new_category = category_mapping.get(label.categoryId, 'unknown')
+    new_category = CATEGORY_MAPPING.get(label.categoryId, 'unknown')
     return Label(
         name=label.name,
         id=label.id,
@@ -122,25 +121,25 @@ def map_category(label):
     )
 
 # Application de la fonction avec une compréhension de liste
-grouped_labels = [map_category(label) for label in labels]
+GROUPED_LABELS = [map_category(label) for label in LABELS]
 
-# Palette de couleurs pour la visualisation (exemple pour 8 classes)
-color_palette = np.array([
+# Palette de couleurs pour la visualisation
+COLOR_PALETTE = np.array([
     [0, 0, 0],         # Fond (noir)
     [230, 25, 75],     # Classe 1 (rouge foncé)
     [60, 180, 75],     # Classe 2 (vert)
     [255, 225, 25],    # Classe 3 (jaune clair)
-    [0, 130, 200],      # Classe 4 (bleu)
-    [245, 130, 48],     # Classe 5 (orange)
-    [145, 30, 180],     # Classe 6 (violet)
-    [240, 240, 240],    # Classe 7 (gris clair)
-    [70, 240, 240],     # Classe 8 (cyan clair)
+    [0, 130, 200],     # Classe 4 (bleu)
+    [245, 130, 48],    # Classe 5 (orange)
+    [145, 30, 180],    # Classe 6 (violet)
+    [240, 240, 240],   # Classe 7 (gris clair)
+    [70, 240, 240],    # Classe 8 (cyan clair)
 ], dtype=np.uint8)
 
 # Fonction pour récupérer la liste des images disponibles
 def get_image_list():
     try:
-        return [f for f in os.listdir(dirs["images"]) if f.endswith(('.png', '.jpg', '.jpeg'))]
+        return [f for f in os.listdir(DIRS["images"]) if f.endswith(('.png', '.jpg', '.jpeg'))]
     except Exception as e:
         logger.error(f"Erreur lors de la récupération des images : {e}")
         raise HTTPException(status_code=500, detail="Erreur interne du serveur")
@@ -151,42 +150,29 @@ def make_prediction(image):
         logger.info("Prédiction en cours...")
 
         # Redimensionner correctement l'image pour le modèle
-        height, width = 1024, 512  # Correspondance au modèle
-        image = image.resize((width, height))  # (512, 1024)
-
-        # Vérification des dimensions de l'image
-        logger.info(f"Dimensions de l'image après redimensionnement : {image.size}")
+        height, width = 1024, 512
+        image = image.resize((width, height))
 
         # Convertir l'image en tableau numpy et normaliser
         image_array = np.array(image).astype(np.float32) / 255.0
-        if image_array.shape[-1] != 3:  # Vérifie que l'image est bien RGB
+        if image_array.shape[-1] != 3:
             raise ValueError("L'image doit avoir 3 canaux (RGB).")
 
         # Ajouter une dimension batch
         image_array = np.expand_dims(image_array, axis=0)
 
-        # Vérification des dimensions finales
-        logger.info(f"Dimensions de l'image après conversion en tableau : {image_array.shape}")
-
         # Prédiction
         prediction = model.predict(image_array)
         logger.info("Prédiction terminée.")
 
-        # Vérification de la forme de la prédiction
-        logger.info(f"Dimensions de la prédiction : {prediction.shape}")
-
-        # Cas pour une segmentation multi-classe (8 canaux)
-        if prediction.shape[-1] > 1:  # Si la prédiction a plus d'un canal (multi-classe)
-            # Appliquer argmax pour obtenir la classe prédite pour chaque pixel
-            prediction = np.argmax(prediction, axis=-1)  # Shape (1, height, width)
-            prediction = np.squeeze(prediction)  # Shape (height, width)
+        # Cas pour une segmentation multi-classe
+        if prediction.shape[-1] > 1:
+            prediction = np.argmax(prediction, axis=-1).squeeze()
         else:
-            # Si la prédiction n'a qu'un seul canal, pas besoin d'argmax
-            prediction = prediction.squeeze()  # Supprimer les dimensions inutiles
+            prediction = prediction.squeeze()
 
         # Convertir la prédiction en image colorée
-        prediction_image = color_palette[prediction]
-        prediction_image = Image.fromarray(prediction_image.astype(np.uint8))
+        prediction_image = Image.fromarray(COLOR_PALETTE[prediction].astype(np.uint8))
         return prediction_image
     except Exception as e:
         logger.error(f"Erreur lors de la prédiction : {e}")
@@ -203,34 +189,31 @@ async def list_images():
 
 @app.get("/images/{image_id}")
 async def get_image(image_id: str):
-    image_path = os.path.join(dirs["images"], image_id)
+    image_path = os.path.join(DIRS["images"], image_id)
     if not os.path.exists(image_path):
         raise HTTPException(status_code=404, detail="Image non trouvée")
     return FileResponse(image_path)
 
 @app.get("/masks/{mask_id}")
 async def get_mask(mask_id: str):
-    mask_path = os.path.join(dirs["masks"], mask_id)
+    mask_path = os.path.join(DIRS["masks"], mask_id)
     if not os.path.exists(mask_path):
         raise HTTPException(status_code=404, detail="Masque non trouvé")
 
     # Charger le masque
     mask = Image.open(mask_path)
-
-    # Convertir le masque en tableau numpy
     mask_array = np.array(mask)
 
     # Vérifier que toutes les valeurs du masque sont dans la plage attendue
-    if np.any((mask_array < 0) | (mask_array >= len(labels))):
+    if np.any((mask_array < 0) | (mask_array >= len(LABELS))):
         logger.error(f"Le masque contient des valeurs non valides : {np.unique(mask_array)}")
         raise HTTPException(status_code=400, detail="Le masque contient des valeurs non valides")
 
     # Mapper les valeurs du masque aux nouvelles catégories
-    mapped_mask_array = np.array([label.categoryId for label in labels])[mask_array]
+    mapped_mask_array = np.array([label.categoryId for label in LABELS])[mask_array]
 
-    # Convertir le masque en image colorée en utilisant la palette de couleurs
-    mask_image = color_palette[mapped_mask_array]
-    mask_image = Image.fromarray(mask_image.astype(np.uint8))
+    # Convertir le masque en image colorée
+    mask_image = Image.fromarray(COLOR_PALETTE[mapped_mask_array].astype(np.uint8))
 
     # Sauvegarder l'image du masque dans un buffer
     buffer = BytesIO()
