@@ -1,0 +1,3 @@
+fastapi
+pytest
+flake8
