@@ -41,6 +41,10 @@ jobs:
       run: |
         touch API/__init__.py
 
+    - name: Install httpx explicitly
+      run: |
+        pip install httpx
+
     - name: Test with pytest
       run: |
         python -m pytest API/testapi.py
