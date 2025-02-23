@@ -48,10 +48,18 @@ jobs:
         echo "🔍 Vérification des packages installés :"
         pip list
 
+    - name: List files in the workspace
+      run: |
+        ls -R
+
     - name: Run Streamlit app
       run: |
         streamlit run app.py &  # Lancez l'application Streamlit en arrière-plan
         sleep 10  # Attendez quelques secondes pour que l'application démarre
+      shell: /usr/bin/bash -e {0}
+      env:
+        pythonLocation: /opt/hostedtoolcache/Python/3.10.16/x64
+        LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.16/x64/lib
 
     - name: Run UI tests
       run: |
