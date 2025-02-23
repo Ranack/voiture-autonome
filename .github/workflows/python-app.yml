@@ -41,9 +41,9 @@ jobs:
       run: |
         touch API/__init__.py
 
-    - name: Install httpx explicitly
+    - name: Install httpx and Pillow explicitly
       run: |
-        pip install httpx
+        pip install httpx Pillow
 
     - name: Test with pytest
       run: |
