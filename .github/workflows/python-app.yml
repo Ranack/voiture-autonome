@@ -6,13 +6,13 @@ on:
       - "main"
     paths:
       - "API/main.py"
-      - ".github/workflows/*.yml"  # Déclenchement lors de la modification des workflows
+      - ".github/workflows/*.yml"
   pull_request:
     branches:
       - "main"
     paths:
       - "API/main.py"
-      - ".github/workflows/*.yml"  # Déclenchement lors de la modification des workflows
+      - ".github/workflows/*.yml"
 
 permissions:
   contents: read
@@ -33,6 +33,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install flake8 pytest fastapi httpx Pillow numpy==1.23.5 scipy==1.10.1 tensorflow segmentation-models
         if [ -f API/requirements.txt ]; then pip install --no-cache-dir -r API/requirements.txt; fi
         echo "🔍 Vérification des packages installés :"
         pip list
@@ -40,15 +41,6 @@ jobs:
     - name: Ensure API package is recognized
       run: |
         touch API/__init__.py
-
-    - name: Install httpx, Pillow and numpy explicitly
-      run: |
-        pip install httpx Pillow numpy
-
-    - name: Set PYTHONPATH to the API folder
-      run: |
-        echo "Setting PYTHONPATH"
-        export PYTHONPATH=$PYTHONPATH:/home/runner/work/voiture-autonome/voiture-autonome/API
 
     - name: Test with pytest
       run: |
