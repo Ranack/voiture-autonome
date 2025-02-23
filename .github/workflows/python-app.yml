@@ -45,6 +45,11 @@ jobs:
       run: |
         pip install httpx Pillow numpy
 
+    - name: Set PYTHONPATH to the API folder
+      run: |
+        echo "Setting PYTHONPATH"
+        export PYTHONPATH=$PYTHONPATH:/home/runner/work/voiture-autonome/voiture-autonome/API
+
     - name: Test with pytest
       run: |
         python -m pytest API/testapi.py
