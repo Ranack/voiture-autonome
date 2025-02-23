@@ -7,8 +7,8 @@ import numpy as np
 import os
 import sys
 
-# Importer le code de l'application
-from main import app, get_image_list, install_package
+# Importer le code de l'application avec un import relatif
+from .main import app, get_image_list, install_package
 
 # Créer un client de test pour l'application FastAPI
 client = TestClient(app)
