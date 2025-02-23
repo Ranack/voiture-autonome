@@ -31,9 +31,9 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install --no-cache-dir flake8 pytest fastapi
         if [ -f API/requirements.txt ]; then pip install --no-cache-dir -r API/requirements.txt; fi
-        pip list  # Vérification des paquets installés
+        echo "🔍 Vérification des packages installés :"
+        pip list
 
     - name: Ensure API package is recognized
       run: |
