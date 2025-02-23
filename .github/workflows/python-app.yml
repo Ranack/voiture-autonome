@@ -7,12 +7,14 @@ on:
     paths:
       - "API/main.py"
       - ".github/workflows/*.yml"
+      - "Model/efficientnet_fpn_model_best_iou_diceloss.keras"  # Ajoute ce chemin pour déclencher le workflow si le modèle change
   pull_request:
     branches:
       - "main"
     paths:
       - "API/main.py"
       - ".github/workflows/*.yml"
+      - "Model/efficientnet_fpn_model_best_iou_diceloss.keras"  # Ajoute ce chemin pour déclencher le workflow si le modèle change
 
 permissions:
   contents: read
