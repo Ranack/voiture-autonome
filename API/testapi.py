@@ -15,9 +15,9 @@ client = TestClient(app)
 
 # Définition des chemins
 dirs = {
-    "images": "../Images/Photos",
-    "masks": "../Images/Mask",
-    "model": "../Model/efficientnet_fpn_model_best_iou_diceloss.keras"
+    "images": os.path.join(os.path.dirname(__file__), '..', 'Images', 'Photos'),
+    "masks": os.path.join(os.path.dirname(__file__), '..', 'Images', 'Mask'),
+    "model": os.path.join(os.path.dirname(__file__), '..', 'Model', 'efficientnet_fpn_model_best_iou_diceloss.keras')
 }
 
 def test_health_check():
