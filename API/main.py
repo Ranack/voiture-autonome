@@ -33,10 +33,11 @@ app = FastAPI()
 
 # Définition des chemins
 DIRS = {
-    "images": "../Images/Photos",
-    "masks": "../Images/Mask",
-    "model": "../Model/efficientnet_fpn_model_best_iou_diceloss.keras"
+    "images": "Images/Photos",
+    "masks": "Images/Mask",
+    "model": "Model/efficientnet_fpn_model_best_iou_diceloss.keras"
 }
+
 
 # Vérifier si le modèle existe
 if not os.path.exists(DIRS["model"]):
