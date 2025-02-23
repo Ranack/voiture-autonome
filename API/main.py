@@ -47,7 +47,7 @@ try:
     model = tf.keras.models.load_model(DIRS["model"], compile=False)
     logger.info("Modèle chargé avec succès.")
 except Exception as e:
-    logger.error(f"Erreur lors du chargement du modèle : {e}")
+    logger.error(f"Erreur lors du chargement modèle : {e}")
     raise ValueError("Impossible de charger le modèle.")
 
 # Définition de la structure Label
