@@ -7,8 +7,11 @@ import numpy as np
 import os
 import sys
 
-# Importer le code de l'application avec un import relatif
-from .main import app, get_image_list, install_package
+# Ajouter le répertoire 'API' au PYTHONPATH pour les tests
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'API')))
+
+# Importer le code de l'application avec un import absolu
+from API.main import app, get_image_list, install_package
 
 # Créer un client de test pour l'application FastAPI
 client = TestClient(app)
