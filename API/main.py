@@ -160,6 +160,7 @@ def get_image_list():
                     # Ajouter le chemin relatif du fichier
                     relative_path = os.path.relpath(os.path.join(root, file), DIRS["images"])
                     image_list.append(relative_path)
+        logger.info(f"Images trouvées : {image_list}")
         return image_list
     except Exception as e:
         logger.error(f"Erreur lors de la récupération des images : {e}")
@@ -211,11 +212,14 @@ async def status():
 
 @app.get("/images")
 async def list_images():
-    return JSONResponse(content={"images": get_image_list()})
+    images = get_image_list()
+    logger.info(f"Liste des images : {images}")
+    return JSONResponse(content={"images": images})
 
 @app.get("/images/{image_id}")
 async def get_image(image_id: str):
     image_path = os.path.join(DIRS["images"], image_id)
+    logger.info(f"Tentative d'accès à l'image : {image_path}")
     if not os.path.exists(image_path):
         raise HTTPException(status_code=404, detail="Image non trouvée")
     return FileResponse(image_path)
@@ -223,6 +227,7 @@ async def get_image(image_id: str):
 @app.get("/masks/{mask_id}")
 async def get_mask(mask_id: str):
     mask_path = os.path.join(DIRS["masks"], mask_id)
+    logger.info(f"Tentative d'accès au masque : {mask_path}")
     if not os.path.exists(mask_path):
         raise HTTPException(status_code=404, detail="Masque non trouvé")
 
@@ -230,7 +235,7 @@ async def get_mask(mask_id: str):
     mask = Image.open(mask_path)
     mask_array = np.array(mask)
 
-    # Vérifier que toutes les valeurs du masque sont dans la plage attendue
+    # Vérifier que toutes le valeurs du masque sont dans la plage attendue
     if np.any((mask_array < 0) | (mask_array >= len(LABELS))):
         logger.error(f"Le masque contient des valeurs non valides : {np.unique(mask_array)}")
         raise HTTPException(status_code=400, detail="Le masque contient des valeurs non valides")
