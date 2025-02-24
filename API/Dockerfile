@@ -17,6 +17,10 @@ WORKDIR /app
 # Copier le code de l'application dans le conteneur
 COPY API/ .
 
+# Copier les répertoires des images et des masques dans le conteneur
+COPY Images/Photos /app/Images/Photos
+COPY Images/Mask /app/Images/Mask
+
 # Installer les dépendances Python
 RUN pip install --no-cache-dir -r requirements.txt
 
