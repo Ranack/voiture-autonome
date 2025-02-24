@@ -153,7 +153,14 @@ COLOR_PALETTE = np.array([
 # Fonction pour récupérer la liste des images disponibles
 def get_image_list():
     try:
-        return [f for f in os.listdir(DIRS["images"]) if f.endswith(('.png', '.jpg', '.jpeg'))]
+        image_list = []
+        for root, dirs, files in os.walk(DIRS["images"]):
+            for file in files:
+                if file.lower().endswith(('.png', '.jpg', '.jpeg')):
+                    # Ajouter le chemin relatif du fichier
+                    relative_path = os.path.relpath(os.path.join(root, file), DIRS["images"])
+                    image_list.append(relative_path)
+        return image_list
     except Exception as e:
         logger.error(f"Erreur lors de la récupération des images : {e}")
         raise HTTPException(status_code=500, detail="Erreur interne du serveur")
