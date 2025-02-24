@@ -8,7 +8,7 @@ import os
 import sys
 
 # Ajouter le répertoire 'API' au PYTHONPATH pour les tests
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'API')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Importer le code de l'application avec un import absolu
 from API.main import app, get_image_list, install_package
@@ -20,7 +20,7 @@ client = TestClient(app)
 dirs = {
     "images": os.path.join(os.path.dirname(__file__), '..', 'Images', 'Photos'),
     "masks": os.path.join(os.path.dirname(__file__), '..', 'Images', 'Mask'),
-    "model": os.path.join(os.path.dirname(__file__), '..', 'Model', 'efficientnet_fpn_model_best_iou_diceloss.keras')
+    "model": os.path.join(os.path.dirname(__file__), '..', 'API', 'Model', 'efficientnet_fpn_model_best_iou_diceloss.keras')
 }
 
 def test_health_check():
