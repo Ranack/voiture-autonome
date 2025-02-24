@@ -20,7 +20,7 @@ client = TestClient(app)
 dirs = {
     "images": "/app/Images/Photos",  # Mise à jour du chemin pour correspondre à votre conteneur Docker
     "masks": "/app/Images/Mask",     # Mise à jour du chemin pour correspondre à votre conteneur Docker
-    "model": "/app/API/Model/efficientnet_fpn_model_best_iou_diceloss.keras"  # Assurez-vous que ce chemin est correct
+    "model": "/app/Model/efficientnet_fpn_model_best_iou_diceloss.keras"  # Assurez-vous que ce chemin est correct
 }
 
 def test_health_check():
@@ -32,16 +32,20 @@ def test_health_check():
     assert response.json() == {"status": "API is running"}
 
 @patch('API.main.os.walk')
-def test_list_images(mock_walk):
+@patch('API.main.tf.keras.models.load_model')
+def test_list_images(mock_load_model, mock_walk):
     """
     Teste l'endpoint /images pour vérifier qu'il retourne la liste correcte des images.
-    Utilise un mock pour simuler le contenu du répertoire des images.
+    Utilise un mock pour simuler le contenu du répertoire des images et le chargement du modèle.
     """
     # Simuler la structure du répertoire avec des sous-dossiers
     mock_walk.return_value = [
         (dirs["images"], ('subdir',), ('image1.png', 'image2.jpg')),
         (os.path.join(dirs["images"], 'subdir'), (), ('image3.png',))
     ]
+
+    # Mock du chargement du modèle
+    mock_load_model.return_value = MagicMock()
 
     response = client.get("/images")
     assert response.status_code == 200
