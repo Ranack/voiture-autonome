@@ -86,6 +86,10 @@ jobs:
         tags: ranack/projetauto:temp
         outputs: type=docker,dest=/tmp/image.tar
 
+    - name: Load Docker image
+      run: |
+        docker load --input /tmp/image.tar
+
     - name: List files in Docker image
       run: |
         docker run --rm ranack/projetauto:temp sh -c "find / -type f"
