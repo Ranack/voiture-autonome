@@ -92,7 +92,7 @@ jobs:
 
     - name: Explore Docker image structure
       run: |
-        docker run --rm ranack/projetauto:temp sh -c "find / -type d -name 'images' -o -name 'masks'"
+        docker run --rm ranack/projetauto:temp sh -c "find / -maxdepth 3"
 
     - name: List specific files in Docker image
       run: |
