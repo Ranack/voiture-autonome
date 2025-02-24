@@ -80,7 +80,14 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v3
       with:
-        context: .  # Inclut tout le dépôt dans le contexte de build
+        context: .
         file: ./API/Dockerfile
         push: true
         tags: ranack/projetauto:latest
+
+    - name: Deploy Docker image to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'twisentiment-v2'
+        images: 'ranack/projetauto:latest'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
