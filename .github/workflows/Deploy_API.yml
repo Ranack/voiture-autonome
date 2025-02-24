@@ -86,14 +86,6 @@ jobs:
         tags: ranack/projetauto:temp
         outputs: type=docker,dest=/tmp/image.tar
 
-    - name: Load Docker image
-      run: |
-        docker load --input /tmp/image.tar
-
-    - name: Search for image and mask files in Docker image
-      run: |
-        docker run --rm ranack/projetauto:temp sh -c "find / -type f -name '*.png'"
-
     - name: Push Docker image
       uses: docker/build-push-action@v3
       with:
