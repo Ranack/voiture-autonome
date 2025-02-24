@@ -18,9 +18,9 @@ client = TestClient(app)
 
 # Définition des chemins
 dirs = {
-    "images": os.path.join(os.path.dirname(__file__), '..', 'Images', 'Photos'),
-    "masks": os.path.join(os.path.dirname(__file__), '..', 'Images', 'Mask'),
-    "model": os.path.join(os.path.dirname(__file__), '..', 'API', 'Model', 'efficientnet_fpn_model_best_iou_diceloss.keras')
+    "images": "/app/Images/Photos",  # Mise à jour du chemin pour correspondre à votre conteneur Docker
+    "masks": "/app/Images/Mask",     # Mise à jour du chemin pour correspondre à votre conteneur Docker
+    "model": "/app/API/Model/efficientnet_fpn_model_best_iou_diceloss.keras"  # Assurez-vous que ce chemin est correct
 }
 
 def test_health_check():
