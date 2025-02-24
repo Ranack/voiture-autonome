@@ -35,8 +35,11 @@ app = FastAPI()
 DIRS = {
     "images": "/app/Images/Photos",  # Mise à jour du chemin pour correspondre à votre conteneur Docker
     "masks": "/app/Images/Mask",     # Mise à jour du chemin pour correspondre à votre conteneur Docker
-    "model": os.path.join(os.path.dirname(__file__), '..', 'Model', 'efficientnet_fpn_model_best_iou_diceloss.keras')  # Chemin relatif pour le modèle
+    "model": "/app/API/Model/efficientnet_fpn_model_best_iou_diceloss.keras"  # Chemin absolu pour le modèle
 }
+
+# Log du chemin absolu du modèle
+logger.info(f"Chemin absolu du modèle : {os.path.abspath(DIRS['model'])}")
 
 # Vérifier si le modèle existe
 if not os.path.exists(DIRS["model"]):
