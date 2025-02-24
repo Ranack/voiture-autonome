@@ -90,9 +90,9 @@ jobs:
       run: |
         docker load --input /tmp/image.tar
 
-    - name: List files in Docker image
+    - name: List specific files in Docker image
       run: |
-        docker run --rm ranack/projetauto:temp sh -c "find / -type f"
+        docker run --rm ranack/projetauto:temp sh -c "find /path/to/images -type f -name '*.png' && find /path/to/masks -type f -name '*.png'"
 
     - name: Push Docker image
       uses: docker/build-push-action@v3
