@@ -31,18 +31,29 @@ def test_health_check():
     assert response.status_code == 200
     assert response.json() == {"status": "API is running"}
 
-@patch('main.os.listdir')
-def test_list_images(mock_listdir):
+@patch('API.main.os.walk')
+def test_list_images(mock_walk):
     """
     Teste l'endpoint /images pour vérifier qu'il retourne la liste correcte des images.
     Utilise un mock pour simuler le contenu du répertoire des images.
     """
-    mock_listdir.return_value = ['image1.png', 'image2.jpg']
+    # Simuler la structure du répertoire avec des sous-dossiers
+    mock_walk.return_value = [
+        (dirs["images"], ('subdir',), ('image1.png', 'image2.jpg')),
+        (os.path.join(dirs["images"], 'subdir'), (), ('image3.png',))
+    ]
+
     response = client.get("/images")
     assert response.status_code == 200
-    assert response.json() == {"images": ['image1.png', 'image2.jpg']}
+    assert response.json() == {
+        "images": [
+            'image1.png',
+            'image2.jpg',
+            os.path.join('subdir', 'image3.png')
+        ]
+    }
 
-@patch('main.os.path.exists')
+@patch('API.main.os.path.exists')
 def test_get_image_not_found(mock_exists):
     """
     Teste l'endpoint /images/{image_id} pour vérifier qu'il retourne une erreur 404 si l'image n'existe pas.
@@ -52,7 +63,7 @@ def test_get_image_not_found(mock_exists):
     response = client.get("/images/image1.png")
     assert response.status_code == 404
 
-@patch('main.os.path.exists')
+@patch('API.main.os.path.exists')
 def test_get_mask_not_found(mock_exists):
     """
     Teste l'endpoint /masks/{mask_id} pour vérifier qu'il retourne une erreur 404 si le masque n'existe pas.
