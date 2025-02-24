@@ -1,3 +1,22 @@
+name: Python application
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "API/**"
+      - ".github/workflows/*.yml"
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "API/**"
+      - ".github/workflows/*.yml"
+
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
