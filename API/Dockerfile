@@ -14,9 +14,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copier le fichier de modèle dans le conteneur
-COPY Model/efficientnet_fpn_model_best_iou_diceloss.keras /app/Model/
-
 # Copier le code de l'application dans le conteneur
 COPY API/ .
 
