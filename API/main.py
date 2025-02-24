@@ -50,6 +50,20 @@ except Exception as e:
     logger.error(f"Erreur lors du chargement modèle : {e}")
     raise ValueError("Impossible de charger le modèle.")
 
+# Préchauffage du modèle
+def warmup_model():
+    try:
+        logger.info("Préchauffage du modèle en cours...")
+        # Créer une image fictive pour le préchauffage
+        dummy_image = np.zeros((1, 1024, 512, 3), dtype=np.float32)
+        model.predict(dummy_image)
+        logger.info("Préchauffage du modèle terminé.")
+    except Exception as e:
+        logger.error(f"Erreur lors du préchauffage du modèle : {e}")
+
+# Appeler la fonction de préchauffage
+warmup_model()
+
 # Définition de la structure Label
 Label = namedtuple('Label', [
     'name', 'id', 'trainId', 'category', 'categoryId', 'hasInstances', 'ignoreInEval', 'color'
@@ -182,6 +196,11 @@ def make_prediction(image):
 async def health_check():
     """ Vérifie si l'API est fonctionnelle. """
     return JSONResponse(content={"status": "API is running"})
+
+@app.get("/status")
+async def status():
+    """ Vérifie le statut de l'API. """
+    return JSONResponse(content={"status": "API is ready"})
 
 @app.get("/images")
 async def list_images():
