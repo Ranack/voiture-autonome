@@ -77,7 +77,16 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PAT }}
 
-    - name: Build and push Docker image
+    - name: Build Docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        file: ./API/Dockerfile
+        push: false
+        tags: ranack/projetauto:temp
+        outputs: type=docker,dest=/tmp/image.tar
+
+    - name: Push Docker image
       uses: docker/build-push-action@v3
       with:
         context: .
