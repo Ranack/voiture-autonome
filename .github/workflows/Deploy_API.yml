@@ -5,18 +5,14 @@ on:
     branches:
       - "main"
     paths:
-      - "API/main.py"
-      - "API/Dockerfile"
+      - "API/**"
       - ".github/workflows/*.yml"
-      - "Model/efficientnet_fpn_model_best_iou_diceloss.keras"
   pull_request:
     branches:
       - "main"
     paths:
-      - "API/main.py"
-      - "API/Dockerfile"
+      - "API/**"
       - ".github/workflows/*.yml"
-      - "Model/efficientnet_fpn_model_best_iou_diceloss.keras"
 
 permissions:
   contents: read
@@ -52,8 +48,8 @@ jobs:
 
     - name: Verify file existence
       run: |
-        if [ ! -f "Model/efficientnet_fpn_model_best_iou_diceloss.keras" ]; then
-          echo "Modèle introuvable : Model/efficientnet_fpn_model_best_iou_diceloss.keras"
+        if [ ! -f "API/Model/efficientnet_fpn_model_best_iou_diceloss.keras" ]; then
+          echo "Modèle introuvable : API/Model/efficientnet_fpn_model_best_iou_diceloss.keras"
           exit 1
         fi
 
@@ -84,7 +80,7 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v3
       with:
-        context: ./API
+        context: .  # Inclut tout le dépôt dans le contexte de build
         file: ./API/Dockerfile
         push: true
         tags: ranack/projetauto:latest
