@@ -90,6 +90,10 @@ jobs:
       run: |
         docker load --input /tmp/image.tar
 
+    - name: Explore Docker image structure
+      run: |
+        docker run --rm ranack/projetauto:temp sh -c "find / -type d -name 'images' -o -name 'masks'"
+
     - name: List specific files in Docker image
       run: |
         docker run --rm ranack/projetauto:temp sh -c "find /path/to/images -type f -name '*.png' && find /path/to/masks -type f -name '*.png'"
