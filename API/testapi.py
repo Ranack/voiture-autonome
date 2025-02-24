@@ -16,11 +16,11 @@ from API.main import app, get_image_list, install_package
 # Créer un client de test pour l'application FastAPI
 client = TestClient(app)
 
-## Définition des chemins
-DIRS = {
+# Définition des chemins
+dirs = {
     "images": "/app/Images/Photos",  # Mise à jour du chemin pour correspondre à votre conteneur Docker
     "masks": "/app/Images/Mask",     # Mise à jour du chemin pour correspondre à votre conteneur Docker
-    "model": "../API/Model/efficientnet_fpn_model_best_iou_diceloss.keras"  # Chemin absolu pour le modèle
+    "model": "API/Model/efficientnet_fpn_model_best_iou_diceloss.keras"  # Chemin absolu pour le modèle
 }
 
 def test_health_check():
