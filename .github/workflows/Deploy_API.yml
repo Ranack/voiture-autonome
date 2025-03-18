@@ -24,11 +24,31 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        lfs: true  # Assurez-vous que les fichiers LFS sont téléchargés
 
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
         python-version: "3.10"
+
+    - name: Install Git LFS
+      run: |
+        curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+        sudo apt-get install git-lfs
+        git lfs install
+
+    - name: Restore LFS Cache
+      id: restore-cache
+      uses: actions/cache@v3
+      with:
+        path: .git/lfs
+        key: lfs-model-cache-${{ runner.os }}-${{ hashFiles('API/Model/efficientnet_fpn_model_best_iou_diceloss.keras') }}
+        restore-keys: |
+          lfs-model-cache-${{ runner.os }}-
+
+    - name: Pull LFS files
+      run: git lfs pull
 
     - name: Cache dependencies
       uses: actions/cache@v3
