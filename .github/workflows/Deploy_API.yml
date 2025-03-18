@@ -24,6 +24,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        lfs: true  # Assurez-vous que les fichiers LFS sont téléchargés
 
     - name: Set up Python
       uses: actions/setup-python@v3
