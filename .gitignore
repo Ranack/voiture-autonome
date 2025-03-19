@@ -1,1 +1,3 @@
 .ipynb_checkpoints/voiture-checkpoint.ipynb
+*.gslides
+*.gdoc
