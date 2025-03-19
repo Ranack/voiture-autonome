@@ -50,6 +50,9 @@ jobs:
     - name: Pull LFS files
       run: git lfs pull
 
+    - name: List files in directory
+      run: ls -la API/Model/
+
     - name: Cache dependencies
       uses: actions/cache@v3
       with:
